@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="dark_cell">#CF7E12</color>
+    <color name="light_cell">#C6C081</color>
+    <color name="light_blue_radius">#C2E6F6</color>
+    <color name="value_cell">#F7FDC1</color>
+
 </resources>

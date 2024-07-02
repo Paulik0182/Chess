@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ui.chess_field.ChessFieldFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:background="@drawable/my_radius_light_blue_200"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="Игрок 1"
+            android:textColor="@color/black"
+            android:textSize="25dp" />
+
+        <include
+            android:id="@+id/chess_field_include"
+            layout="@layout/item_chess_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:background="@drawable/my_radius_light_blue_200"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="Игрок 2"
+            android:textColor="@color/black"
+            android:textSize="25dp" />
+
+    </LinearLayout>
+</FrameLayout>
