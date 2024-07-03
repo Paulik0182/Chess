@@ -196,6 +196,6 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
     }
 
     private fun setUpChessBoard() {
-//
+//TODO
     }
 }
