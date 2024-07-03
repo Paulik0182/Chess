@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Text-->
+    <dimen name="default_text">9sp</dimen>
+
+    <!-- Margin-->
+    <dimen name="default_margin">10dp</dimen>
+    <dimen name="default_cage_margin">0.7dp</dimen>
+
+    <!-- Padding -->
+    <dimen name="default_padding">20dp</dimen>
+
+
+    <!-- Cage-->
+    <dimen name="height_cage">47dp</dimen>
+    <dimen name="width_cage">47dp</dimen>
+
+    <dimen name="cage_with_number">9dp</dimen>
+    <dimen name="cage_with_letter">9dp</dimen>
+
+    <dimen name="height_cage_letter">12dp</dimen>
+    <dimen name="height_cage_empty">12dp</dimen>
+    <dimen name="width_cage_empty">9dp</dimen>
+
+
+</resources>
