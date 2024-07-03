@@ -2,9 +2,13 @@ package com.nayya.chess.ui.chess_field
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.nayya.chess.R
 import com.nayya.chess.databinding.FragmentChessFieldBinding
+import com.nayya.chess.domain.ChessPiece
+import com.nayya.chess.domain.ChessPosition
+import com.nayya.chess.domain.PieceType
 import com.nayya.chess.utils.image.GlideImageLoader
 import com.nayya.chess.utils.viewBinding
 
@@ -98,6 +102,31 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
         }
     }
 
+    /**
+     * Метод обрабатывает перемещение коня на доске.
+     * Он определяет возможные ходы коня, выделяет их на доске,
+     * а затем обрабатывает нажатие на клетку, куда пользователь хочет
+     * переместить коня.
+     */
+    private fun handleKnightMove(knight: ChessPiece) {
+        // Определяем возможные ходы коня
+        val possibleMoves = getPossibleKnightMoves(knight.position)
+
+        // Выделяем клетки, куда может сходить конь
+        highlightChessSquares(possibleMoves)
+
+        // Обрабатываем нажатие на клетку
+        binding.chessFieldInclude.chessSquare1b.setOnClickListener { view ->
+            val clickedSquare = getChessSquareFromView(view)
+            if (clickedSquare in possibleMoves) {
+                // Перемещаем коня на выбранную клетку
+                moveKnight(knight, clickedSquare)
+                // Снимаем выделение с клеток
+                unhighlightChessSquares(possibleMoves)
+            }
+        }
+    }
+
     companion object {
         @JvmStatic
         fun newInstance() =
@@ -107,5 +136,66 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
 
                 }
             }
+    }
+
+
+    /**
+     * функция определяет возможные ходы коня, исходя из его текущей позиции на доске. Она
+     * возвращает множество объектов ChessPosition, представляющих допустимые клетки для перемещения.
+     */
+    private fun getPossibleKnightMoves(position: ChessPosition): Set<ChessPosition> {
+        val (row, col) = position
+        return setOf(
+            ChessPosition(row - 2, col - 1),
+            ChessPosition(row - 2, col + 1),
+            ChessPosition(row - 1, col - 2),
+            ChessPosition(row - 1, col + 2),
+            ChessPosition(row + 1, col - 2),
+            ChessPosition(row + 1, col + 2),
+            ChessPosition(row + 2, col - 1),
+            ChessPosition(row + 2, col + 1)
+        ).filter { it.row in 0..7 && it.col in 0..7 }.toSet()
+    }
+
+    /**
+     * метод принимает набор клеток, которые нужно выделить, и применяет к ним специальный фон,
+     * чтобы визуально отметить доступные для перемещения клетки.
+     */
+    private fun highlightChessSquares(positions: Set<ChessPosition>) {
+        for (position in positions) {
+            val view = binding.chessFieldInclude.chessSquare1b.findViewWithTag<View>("${position.row},${position.col}")
+            view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.value_cell))
+        }
+    }
+
+    /**метод возвращает клетки к их исходному виду, снимая с них выделение.*/
+    private fun unhighlightChessSquares(positions: Set<ChessPosition>) {
+        for (position in positions) {
+            val view = binding.chessFieldInclude.chessSquare1b.findViewWithTag<View>("${position.row},${position.col}")
+            view?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.value_cell))
+        }
+    }
+
+    /**
+     * метод обновляет позицию коня в объекте ChessPiece и вызывает setUpChessBoard(), чтобы
+     * отобразить новое расположение фигур на доске.
+     */
+    private fun moveKnight(knight: ChessPiece, newPosition: ChessPosition) {
+        knight.position = newPosition
+        setUpChessBoard()
+    }
+
+    /**
+     * метод определяет позицию клетки на доске, исходя из View объекта, представляющего эту клетку.
+     * Предполагается, что клетки помечены тегами в формате "row,col", что позволяет извлечь координаты.
+     */
+    private fun getChessSquareFromView(view: View): ChessPosition {
+        val tag = view.tag as String
+        val (row, col) = tag.split(",").map { it.toInt() }
+        return ChessPosition(row, col)
+    }
+
+    private fun setUpChessBoard() {
+//
     }
 }
