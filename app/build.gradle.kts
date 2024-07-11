@@ -87,6 +87,10 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // KOIN
+    implementation("io.insert-koin:koin-android:3.4.0")
+
+
     // Test
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
