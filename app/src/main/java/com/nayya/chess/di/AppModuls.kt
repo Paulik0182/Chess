@@ -1,5 +1,6 @@
 package com.nayya.chess.di
 
+import android.content.Context
 import android.widget.ImageView
 import com.nayya.chess.ui.chess_field.ChessFieldFragment
 import com.nayya.chess.ui.chess_field.ChessFieldViewModel
@@ -10,10 +11,10 @@ val appModules = module {
 
     single { ChessFieldFragment() }
 
-    factory { (binding: ChessFieldFragment) -> binding }
     factory { (arrayButtons: ArrayList<ArrayList<ImageView>>) -> arrayButtons }
+    factory { (context: Context) -> context }
 
-    viewModel { (binding: ChessFieldFragment, arrayButtons: ArrayList<ArrayList<ImageView>>) ->
-        ChessFieldViewModel(binding, arrayButtons)
+    viewModel { (context: Context, arrayButtons: ArrayList<ArrayList<ImageView>>) ->
+        ChessFieldViewModel(context, arrayButtons)
     }
 }

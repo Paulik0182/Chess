@@ -1,5 +1,8 @@
 package com.nayya.chess.ui.chess_field
 
+import android.content.Context
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,11 +11,18 @@ import com.nayya.chess.domain.ChessPosition
 import com.nayya.chess.domain.ColorChess
 import com.nayya.chess.domain.PieceType
 
-class ChessFieldViewModel : ViewModel() {
+class ChessFieldViewModel(
+    private val context: Context,
+    private val arrayButtons: ArrayList<ArrayList<ImageView>>,
+) : ViewModel() {
 
-    private var activeColor = ColorChess.WHITE
+    var activeColor = ColorChess.WHITE
     private var selectedPiece: ChessPiece? = null
     private var selectedFrom: ChessPosition? = null
+
+    // поле для хранения подсвеченных позиций
+    val highlightedPositions = MutableLiveData<List<ChessPosition>>()
+    val completingMove = MutableLiveData<Boolean>(false)
 
     private val _field: ArrayList<ArrayList<ChessPiece?>> = arrayListOf(
         arrayListOf(null, null, null, null, null, null, null, null),
@@ -194,34 +204,85 @@ class ChessFieldViewModel : ViewModel() {
         notifyFieldChanged()
     }
 
-    fun onPositionSelected(to: ChessPosition) {
+    fun onPositionSelected(clickPosition: ChessPosition) {
         if (selectedPiece == null || selectedFrom == null) {
-            // Выбор фигуры для хода
-            selectPiece(to)
+            // Выберите фигуру для хода
+            selectPiece(clickPosition)
+
+            completingMove.value = false
         } else {
-            // Перемещение фигуры
-            try {
-                move(selectedFrom!!, to)
-                selectedPiece = null
-                selectedFrom = null
-            } catch (e: IllegalStateException) {
-                // Обработка ошибок при ходе
-                println(e.message)
+            // Переместите фигуру
+            if (canPawnMove(clickPosition)) {
+                try {
+                    move(selectedFrom!!, clickPosition)
+                    selectedPiece = null
+                    selectedFrom = null
+
+                    completingMove.value = true
+                } catch (e: IllegalStateException) {
+                    // Обработка ошибок при ходе
+                    println(e.message)
+                }
+            } else {
+                // Ход невозможен
+                selectedPiece
             }
         }
     }
 
-    private fun selectPiece(from: ChessPosition) {
-        val piece = field.value?.get(from.row)?.get(from.col)
+    private fun selectPiece(clickPosition: ChessPosition) {
+        val piece = field.value?.get(clickPosition.row)?.get(clickPosition.col)
         if (piece != null && piece.colorChess == activeColor) {
             selectedPiece = piece
-            selectedFrom = from
+            selectedFrom = clickPosition
+
+            // Получаем доступные ходы для выбранной фигуры
+            val availableMoves = selectedPiece?.type?.strategy?.calcAvailablePositions(
+                selectedFrom!!,
+                _field
+            )
+
+            // Если у фигуры нет доступных ходов, сбрасываем выбор
+            if (availableMoves.isNullOrEmpty()) {
+                selectedPiece = null
+                selectedFrom = null
+                Toast.makeText(context, "Нет доступных ходов", Toast.LENGTH_SHORT).show()
+            } else {
+                highlightedPositions.postValue(availableMoves)
+            }
+
         } else {
-            // Нет фигуры или фигура неверного цвета
+            if (piece != null) {
+                Toast.makeText(context, "Сейчас не ваш ход", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Выберите фигуру", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun notifyFieldChanged() {
         (field as MutableLiveData<ArrayList<ArrayList<ChessPiece?>>>).value = _field
     }
+
+    /**
+     * По задумке метод должен проверять - может ли пешка совершить ход с позиции from на позицию to.
+     * Он возвращает true, если ход является допустимым, и false в противном случае.
+     *
+     * Основные шаги метода:
+     *
+     * Получает пешку, стоящую на позиции from, и проверяет, что она принадлежит активному игроку.
+     * Вычисляет разницу между строками (rowDiff) и столбцами (colDiff) между from и to.
+     * Возвращает true, если:
+     * Пешка делает первый ход на 1 или 2 клетки вперед, и промежуточные клетки пусты (isRowEmpty(from.row, from.row + 2)).
+     * Пешка делает ход на 1 клетку вперед, и клетка назначения пуста.
+     * Пешка берет фигуру противника по диагонали.
+     * В противном случае возвращает false.
+     */
+    private fun canPawnMove(to: ChessPosition): Boolean {
+        highlightedPositions.value?.forEach {
+            if (it == to) return true
+        }
+        return false
+    }
+
 }

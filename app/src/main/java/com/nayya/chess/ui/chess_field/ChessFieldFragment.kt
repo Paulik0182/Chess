@@ -1,10 +1,11 @@
 package com.nayya.chess.ui.chess_field
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.nayya.chess.R
 import com.nayya.chess.databinding.FragmentChessFieldBinding
 import com.nayya.chess.domain.ChessPosition
@@ -12,6 +13,8 @@ import com.nayya.chess.domain.ColorChess
 import com.nayya.chess.domain.PieceType
 import com.nayya.chess.utils.image.GlideImageLoader
 import com.nayya.chess.utils.viewBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
 
@@ -29,12 +32,9 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
     private val queenWhite = R.drawable.queen_white_44
     private val rookWhite = R.drawable.rook_white_44
 
+    private val defaultCellColor = Color.TRANSPARENT
+
     private val binding by viewBinding<FragmentChessFieldBinding>()
-    private val viewModel: ChessFieldViewModel by lazy {
-        ViewModelProvider(
-            this,
-        )[ChessFieldViewModel::class.java]
-    }
 
     private val arrayButtons: ArrayList<ArrayList<ImageView>> by lazy {
         arrayListOf(
@@ -121,6 +121,10 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
         )
     }
 
+    private val viewModel: ChessFieldViewModel by viewModel {
+        parametersOf(requireContext(), arrayButtons)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -128,11 +132,11 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
             field.forEachIndexed { row, chessPieces ->
 
                 chessPieces.forEachIndexed { col, chessPiece ->
-                    if (chessPieces == null) {
+                    if (chessPiece == null) {
                         arrayButtons[row][col].setImageDrawable(null)
                     } else {
                         GlideImageLoader().loadInto(
-                            when (chessPiece?.type) {
+                            when (chessPiece.type) {
                                 PieceType.BISHOP ->
                                     if (chessPiece.colorChess == ColorChess.WHITE) bishopWhite else bishopBlack
 
@@ -160,12 +164,26 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
             }
         }
 
+        setDefaultCellColors()
 
         arrayButtons.forEachIndexed { row, row_buttons ->
             row_buttons.forEachIndexed { col, button ->
                 button.setOnClickListener {
                     viewModel.onPositionSelected(ChessPosition(row, col))
                 }
+            }
+        }
+
+        viewModel.highlightedPositions.observe(viewLifecycleOwner) {
+            it.forEach { position ->
+                arrayButtons[position.row][position.col].setBackgroundColor(Color.YELLOW)
+            }
+        }
+
+
+        viewModel.completingMove.observe(viewLifecycleOwner) { completingMove ->
+            if (completingMove) {
+                setDefaultCellColors()
             }
         }
     }
@@ -176,6 +194,40 @@ class ChessFieldFragment : Fragment(R.layout.fragment_chess_field) {
 //            GlideImageLoader().loadInto(it, binding.chessFieldInclude.chessSquare8f)
 //        }
 
+    /**
+     * метод устанавливает дефолтные чередующиеся цвета для всех клеток шахматной доски, используя
+     * массив arrayButtons. Он применяет логику чередования светлых и темных клеток по диагонали.
+     *
+     * row, rowButtons -> - внешний цикл, который будет перебирать каждый ряд (от 0 до 7) массива arrayButtons.
+     * row - переменная, которая будет хранить индекс текущего ряда.
+     * rowButtons - переменная, которая будет хранить список кнопок (ImageView) для текущего ряда.
+     *
+     * col, button -> - внутренний цикл, который будет перебирать каждую кнопку (клетку) в текущем ряду.
+     * col - переменная, которая будет хранить индекс текущей колонки.
+     * button - переменная, которая будет хранить текущую кнопку (ImageView).
+     *
+     * if ((row + col) % 2 == 0) - Вычисляем цвет фона для текущей клетки.
+     * Мы берем сумму индексов row и col, и проверяем, является ли она четной.
+     * Если сумма четная, то это "светлая" клетка, иначе это "темная" клетка.
+     */
+    private fun setDefaultCellColors() {
+        // Начинаем двойной цикл для перебора всех клеток шахматной доски
+        arrayButtons.forEachIndexed { row, rowButtons ->
+            // Внутренний цикл для перебора каждой кнопки в ряду
+            rowButtons.forEachIndexed { col, button ->
+                // Вычисляем цвет фона для текущей клетки
+                val backgroundColor = if ((row + col) % 2 == 0) {
+                    // Если сумма индексов ряда и столбца четная, это "светлая" клетка
+                    ContextCompat.getColor(requireContext(), R.color.light_cell)
+                } else {
+                    // Иначе это "темная" клетка
+                    ContextCompat.getColor(requireContext(), R.color.dark_cell)
+                }
+                // Устанавливаем вычисленный цвет фона для текущей кнопки
+                button.setBackgroundColor(backgroundColor)
+            }
+        }
+    }
 
     companion object {
         @JvmStatic
