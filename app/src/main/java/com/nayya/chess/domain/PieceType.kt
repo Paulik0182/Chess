@@ -2,10 +2,11 @@ package com.nayya.chess.domain
 
 import com.nayya.chess.data.KnightStrategy
 import com.nayya.chess.data.PawnStrategy
+import com.nayya.chess.data.RookStrategy
 
 enum class PieceType (val strategy: PieceStrategy) {
     PAWN(PawnStrategy),
-    ROOK(PawnStrategy),
+    ROOK(RookStrategy),
     KNIGHT(KnightStrategy),
     BISHOP(PawnStrategy),
     QUEEN(PawnStrategy),

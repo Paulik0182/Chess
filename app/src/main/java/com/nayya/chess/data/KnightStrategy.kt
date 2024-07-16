@@ -14,7 +14,8 @@ object KnightStrategy : PieceStrategy {
     override fun calcAvailablePositions(
         from: ChessPosition, // текущую позицию Коня на шахматной доске
         field: List<List<ChessPiece?>>, // двумерный список, представляющий все фигуры на доске
-    ): List<ChessPosition> {val validPositions = mutableListOf<ChessPosition>()
+    ): List<ChessPosition> {
+        val validPositions = mutableListOf<ChessPosition>()
         val chessPiece = field[from.row][from.col] ?: throw IllegalStateException("Нет фигуры")
 
         // Возможные смещения для хода коня
@@ -47,7 +48,7 @@ object KnightStrategy : PieceStrategy {
 
     private fun isPositionEmpty(
         chessPosition: ChessPosition,
-        field: List<List<ChessPiece?>>
+        field: List<List<ChessPiece?>>,
     ): Boolean {
         return field[chessPosition.row][chessPosition.col] == null
     }
@@ -55,7 +56,7 @@ object KnightStrategy : PieceStrategy {
     private fun isPositionEnemy(
         chessPosition: ChessPosition,
         color: ColorChess,
-        field: List<List<ChessPiece?>>
+        field: List<List<ChessPiece?>>,
     ): Boolean {
         if (isPositionEmpty(chessPosition, field)) return false
         return field[chessPosition.row][chessPosition.col]?.colorChess != color
