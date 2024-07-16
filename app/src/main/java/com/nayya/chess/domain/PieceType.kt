@@ -1,6 +1,7 @@
 package com.nayya.chess.domain
 
 import com.nayya.chess.data.BishopStrategy
+import com.nayya.chess.data.KingStrategy
 import com.nayya.chess.data.KnightStrategy
 import com.nayya.chess.data.PawnStrategy
 import com.nayya.chess.data.QueenStrategy
@@ -12,5 +13,5 @@ enum class PieceType (val strategy: PieceStrategy) {
     KNIGHT(KnightStrategy),
     BISHOP(BishopStrategy),
     QUEEN(QueenStrategy),
-    KING(PawnStrategy)
+    KING(KingStrategy)
 }
